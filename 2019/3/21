@@ -1,0 +1,77 @@
+poj 1850
+输出小写字母排列在字典序中的位置
+a - 1 
+b - 2 
+... 
+z - 26 
+ab - 27 
+... 
+az - 51 
+bc - 52 
+... 
+vwxyz - 83681 
+... 
+
+Input
+bf
+Output
+55
+这题中主要了解的是组合数的求法
+void init() {
+    for(int i = 0 ; i <= 26 ; i++) {
+        for(int j = 0 ; j <= i ; j++) {
+            if(j == 0 || i == j) c[i][j] = 1;
+            else c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
+        }
+    }
+}
+
+题目代码
+#include <cstdio> 
+#include <iostream>
+#include <cstring>
+using namespace std;
+const int MAXN = 1e5 + 10;
+typedef long long ll;
+int c[30][30];
+char s[15];
+
+void init() {
+    for(int i = 0 ; i <= 26 ; i++) {
+        for(int j = 0 ; j <= i ; j++) {
+            if(j == 0 || i == j) c[i][j] = 1;
+            else c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
+        }
+    }
+}
+
+int main() {
+    scanf("%s" , s);
+    int len = strlen(s);
+    int flag = 1;
+    for(int i = 1 ; i < len ; i++) {
+        if(s[i] <= s[i - 1]) {
+            flag = 0;
+            break;
+        }
+    }
+    if(!flag) {
+        printf("0\n");
+        return 0;
+    }
+    init();
+    ll sum = 0;
+    for(int i = 1 ; i <= len - 1 ; i++)
+        sum += c[26][i];
+    int t = s[0] - 'a';
+    for(int i = 1 ; i <= t ; i++)
+        sum += c[26 - i][len - 1];
+    for(int i = 1 ; i < len ; i++) {
+        for(int j = s[i - 1] - 'a' + 1 ; j < s[i] - 'a' ; j++)
+            sum += c[25 - j][len - i - 1];
+    }
+    printf("%lld\n" , sum + 1);
+    return 0;
+}
+
+
