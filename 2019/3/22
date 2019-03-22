@@ -1,0 +1,173 @@
+codeforces 1139c
+容斥，快速幂，并查集求联通块
+一个有n个节点的无向图，边权有1（表示黑边）和0（表示粉边），要求找出含有k个节点，至少包含一条黑边的路径有多少个，结果对1e9 + 7取模
+整幅图中一共可以找出n ^ k条路径，把黑边去掉，用并查集找出每个联通块所包含的节点，对答案的贡献就是cnt ^ k，减掉即可。
+注意快速幂最后的结果可能会有负值，所以要加上MOD的操作，使之变正。
+
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int MOD = 1e9 + 7;
+typedef long long ll;
+int a[1100];
+int n , k;
+int fa[2 * MAXN] , cnt[2 * MAXN];
+
+int find_(int x) {
+    if(x != fa[x]) return fa[x] = find_(fa[x]);
+    else return x;
+}
+
+void union_(int a , int b) {
+    cnt[a] += cnt[b];
+    fa[b] = a;
+}
+ll quick_mul(ll a , ll b , ll m)
+{
+    ll ans = 0 ;
+    while (b)
+    {
+        if (b & 1)
+            ans = (ans + a) % m ;
+        a = (a + a) % m ;
+        b >>= 1 ;
+    }
+    return ans ;
+}
+
+ll quick_pow(ll a , ll b , ll m)
+{
+    ll ans = 1 ;
+    while (b)
+    {
+        if (b & 1)
+            ans = quick_mul(ans , a , m);
+        a = quick_mul(a , a , m) ;
+        b >>= 1 ;
+    }
+    return ans ;
+}
+
+int main() {
+    scanf("%d%d" , &n , &k);
+    for(int i = 1 ; i <= n ; i++)
+        fa[i] = i , cnt[i] = 1;
+    int u , v , w;
+    for(int i = 1 ; i < n ; i++) {
+        scanf("%d%d%d" , &u , &v , &w);
+        if(!w) {
+            int x = find_(u);
+            int y = find_(v);
+            if(x != y) union_(x , y);
+        }
+    }
+    ll res = quick_pow(n , k , MOD);
+    for(int i = 1 ; i <= n ; i++) {
+        if(fa[i] == i)
+            res = (res - quick_pow(cnt[i] , k , MOD)) % MOD;
+    }
+    if(res < 0)
+        printf("%lld\n" , res + MOD);
+    else printf("%lld\n" , res);
+    return 0;
+}
+
+
+
+
+poj  3101
+给出n个行星的周期，求两次这些行星在一条直线上的最短间隔时间。
+结果用分数表示，输出两个数字表示分子和分母。
+以第一个行星为参考系，t0 , 其他行星的周期为ti，
+所以间隔时间为 ti*t0 / 2*|t0 - ti|;
+于是就变成了求一串分数的最小公倍数
+*对于两个分数 a/b , c/d, 其最小公倍数是 lcm(a,c)/gcd(b,d);
+由因为此题求最小公倍数结果会非常大，于是要用大整数
+
+代码：
+#include<iostream>
+#include<algorithm>
+#include<cstdio>
+#include<cstring>
+#include<cmath>
+using namespace std;
+const int MAXN = 1010;
+ 
+int GCD(int a,int b)
+{
+    if(b == 0)
+        return a;
+    return GCD(b,a%b);
+}
+ 
+int A[MAXN],B[MAXN],C[MAXN*10];
+ 
+int main()
+{
+    int N;
+    while(~scanf("%d",&N))
+    {
+        for(int i = 0; i < N; ++i)
+            scanf("%d",&A[i]);
+        memset(B,0,sizeof(B));
+        memset(C,0,sizeof(C));
+        B[0] = 1;
+ 
+        int a,b,gcd,fm = 0,k;
+        for(int i = 1; i < N; ++i)
+        {
+            if(A[i] != A[0])
+            {
+                b = A[i]*A[0];
+                a = abs(A[i]-A[0])*2;
+                gcd = GCD(a,b);
+                a /= gcd;
+                b /= gcd;
+                fm = GCD(a,fm);
+ 
+                for(int j = 2; b > 1; ++j)
+                {
+                    if(b % j == 0)
+                    {
+                        k = 0;
+                        while(b % j == 0)
+                        {
+                            b /= j;
+                            k++;
+                        }
+                        if(k > C[j])    //C[] 数组记录素因子的幂 对应的最大值
+                            C[j] = k;
+                    }
+                }
+            }
+        }
+ 
+        int tmp;
+        for(int i = 0; i < MAXN*10; ++i)
+        {
+            for(int j = 0; j < C[i]; ++j)
+            {
+                tmp = 0;
+                for(int k = 0; k < MAXN; ++k)
+                {
+                    B[k] = B[k]*i + tmp;
+                    tmp = B[k] / 10000;
+                    B[k] %= 10000;
+                }
+            }
+        }
+ 
+        int i = 999;
+        while(i > 0 && B[i] == 0)
+            i--;
+ 
+        printf("%d",B[i]);
+        for(--i; i >= 0; --i)
+            printf("%04d",B[i]);
+        printf(" %d\n",fm);
+    }
+ 
+    return 0;
+}
+
+
