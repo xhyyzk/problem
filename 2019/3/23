@@ -1,0 +1,79 @@
+poj 2187  求平面上最远的两个点间的距离
+可知最远的两个点一定在凸包上 ， 所以用Graham扫描法
+其中包括极角排序，旋转卡壳
+
+#include<bits/stdc++.h>
+using namespace std;
+#define N 50500
+#define PI 4*atan(1.0)
+#define eps 1e-8
+struct Node
+{
+    int x,y;
+} p[N],stack[N];
+int mulit(Node a,Node b,Node c)//向量ab与向量ac的叉乘
+{
+    return ((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x));
+}
+ 
+int dist(Node s,Node e)//s点与e点的距离的平方
+{
+    return (s.x-e.x)*(s.x-e.x)+(s.y-e.y)*(s.y-e.y);
+}
+ 
+int cmp(Node a,Node b)//设<p1,p2,...pm>为对其余点按以p0为中心的极角逆时针排序所得的点集（如果有多个点有相同的极角，除了距p0最远的点外全部移除)
+{
+    if(mulit(p[0],a,b)>0)//向量p[0]a在向量p[0]b顺时针方向,返回1
+        return 1;
+    if(mulit(p[0],b,a)==0&&(dist(p[0],b)-dist(p[0],a)>eps))//p[0]a与p[0]b共线，而且b点距离更远
+        return 1;
+    return 0;
+}
+ 
+int Graham(int n)
+{
+    int top=2;
+    sort(p+1,p+n,cmp);
+    stack[0]=p[0];
+    stack[1]=p[1];
+    stack[2]=p[2];
+    for(int i=3; i<n; i++)
+    {
+        while(top>=1&&mulit(stack[top-1],p[i],stack[top])>=0)
+            top--;
+        stack[++top]=p[i];
+    }
+    return top;
+}
+int qiake(int top)
+{
+    int q=1,ans=0;
+    stack[top+1]=stack[0];
+    for(int p=0; p<=top; p++)
+    {
+        while(mulit(stack[p+1],stack[q],stack[p])<mulit(stack[p+1],stack[q+1],stack[p]))
+            q=(q+1)%top;
+        ans=max(ans,max(dist(stack[p],stack[q]),dist(stack[p+1],stack[q+1])));
+    }
+    return ans;
+}
+int main()
+{
+    int T,n,m;
+    while(~scanf("%d",&n)&&n)
+    {
+        for(int i=0; i<n; i++)
+            scanf("%d %d",&p[i].x,&p[i].y);
+        int k=0;
+        for(int i=0; i<n; i++)
+        {
+            if(p[k].y>p[i].y||(p[k].y==p[i].y&&p[k].x>p[i].x))
+                k=i;
+        }
+        swap(p[0],p[k]);
+        int top=Graham(n);
+        int ans=qiake(top);
+        printf("%d\n",ans);
+    }
+    return 0;
+ }
