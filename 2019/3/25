@@ -1,0 +1,235 @@
+bzoj 1013 球形空间产生器sphere
+高斯消元
+给定一个n ，接下来n+1行给定n维空间n+1个在球上的点的坐标，问球心坐标。（题目保证有解）
+由n+1点可以确定出n个带有n个未知数的方程，且每个未知数都有系数（可以用0补），由行列式即可求解。
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e4 +10;
+const int inf = 0x3f3f3f3f;
+const int eps = 1e-7;
+double a[110][110] , p[110][110];
+int n;
+void Gauss() {
+    for(int i = 0 ; i < n ; i++) {
+        int r = i;
+        for(int j = i + 1 ; j < n ; j++) {
+            if(fabs(a[j][i]) > fabs(a[r][i]))
+                r = j;
+        }
+        if(fabs(a[r][i]) < eps) {
+            printf("No Solution\n");
+            return ;
+        }
+        if(r != i) {
+            for(int j = 0 ; j <= n ; j++)
+                swap(a[r][j] , a[i][j]);
+        }
+        
+        for(int j = n ; j >= i ; j--) {
+            for(int k = i + 1 ; k < n ; k++)
+                a[k][j] -= a[k][i] / a[i][i] * a[i][j];
+        }
+    }
+    for(int i = n - 1 ; i >= 0 ; i--) {
+        for(int j = i + 1 ; j < n ; j++)
+            a[i][n] -= a[j][n] * a[i][j];
+        a[i][n] /= a[i][i];
+    }
+}
+
+
+int main() {
+    cin >> n;
+    for(int i = 0 ; i < n + 1 ; i++) {
+        p[i][n] = 0;
+        for(int j = 0 ; j < n ; j++) {
+            cin >> p[i][j];
+            p[i][n] += p[i][j] * p[i][j];
+        }
+    }
+    for(int i = 0 ; i < n ; i++) {
+        for(int j = 0 ; j < n ; j++) {
+            a[i][j] = -2 * p[i][j] + 2 * p[i + 1][j];
+        }
+        a[i][n] = p[i + 1][n] - p[i][n];
+    }
+    /*for(int i = 0 ; i < n ; i++) {
+        for(int j = 0 ; j < n + 1 ; j++)
+            cout << a[i][j] << " ";
+        cout << endl;
+    }*/
+    Gauss();
+    for(int i = 0 ; i < n ; i++) {
+        if(i == n - 1) printf("%.3lf\n" , a[i][n]);
+        else printf("%.3lf " , a[i][n]);
+    }
+    return 0;
+}
+//input
+2
+0.0 0.0
+-1.0 1.0
+1.0 0.0
+output
+0.500 1.500
+
+
+
+
+
+
+poj 3041 Asteroids 
+二分图的最小点覆盖（即为二分图的最大匹配数）
+给定一个n*n的网点，其中的k个点上有障碍，一次操作可以扫除一列或一行中所有的障碍，问最少需要多少次这样的操作可以扫除所有的障碍
+/*input
+3 4
+1 1
+1 3
+2 2
+3 2
+output
+2
+
+代码：
+#include<cstdio>
+#include<iostream>
+#include<cstring>
+#include<string>
+using namespace std;
+const int MAXN = 520;
+const int inf = 0x3f3f3f3f;
+const int eps = 1e-7;
+int n , k , un , vn , res;
+int g[MAXN][MAXN];
+int linker[MAXN];
+bool used[MAXN];
+
+bool dfs(int u) {
+    for(int v = 1 ; v <= vn ; v++) {
+        if(g[u][v] && !used[v]) {
+            used[v] = true;
+            if(linker[v] == -1 || dfs(linker[v])) {
+                linker[v] = u;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int hungary() {
+    int res = 0;
+    memset(linker , -1 , sizeof(linker));
+    for(int u = 1 ; u <= un ; u++) {
+        memset(used , false , sizeof(used));
+        if(dfs(u)) res++;
+    }
+    return res;
+}
+
+int main() {
+    while(scanf("%d%d" , &n , &k) == 2) {
+        un = n , vn = n;
+        memset(g , 0 , sizeof(g));
+        int u , v;
+        for(int i = 0 ; i < k ; i++) {
+            scanf("%d%d" , &u , &v);
+            g[u][v] = 1;
+        }
+        int sum = hungary();
+        printf("%d\n" , sum);
+    }
+    return 0;
+}
+
+
+
+
+
+poj 3020 Antenna Placement 
+最小路径覆盖
+给定一个n*m的图，其中'*'表示城市，'0'表示空地，给城市安装无线网 ， 一条无线网可以联通两座城市，问最少要多少条无线网。
+首先 公式是最小路径覆盖 = 总结点数 - 最大匹配数。又由于是无向图 ， 所以最大匹配数等于求得的最大匹配数除2；
+本题还有考点是建图，首先又mpt图得到各点（城市）的编号，用pre_g来存，之后深搜找边，用邻接矩阵（g）来存。
+
+代码：
+#include<cstdio>
+#include<iostream>
+#include<cstring>
+#include<string>
+using namespace std;
+const int MAXN = 520;
+const int inf = 0x3f3f3f3f;
+const int eps = 1e-7;
+int n , m , k , un , vn ;
+int pre_g[MAXN][MAXN];
+int g[MAXN][MAXN];
+char mpt[50][20];
+int linker[MAXN];
+bool used[MAXN];
+int dir[4][2] = {-1,0 , 0,1 , 1,0 , 0,-1};
+
+
+bool dfs(int u) {
+    for(int v = 1 ; v <= vn ; v++) {
+        if(g[u][v] && !used[v]) {
+            used[v] = true;
+            if(linker[v] == 0 || dfs(linker[v])) {
+                linker[v] = u;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int hungary() {
+    int res = 0;
+    memset(linker , 0 , sizeof(linker));
+    for(int u = 1 ; u <= un ; u++) {
+        memset(used , false , sizeof(used));
+        if(dfs(u)) res++;
+    }
+    return res;
+}
+
+int main() {
+    int t;
+    scanf("%d" , &t);
+    while(t--) {
+        memset(g , 0 , sizeof(g));
+        memset(pre_g , 0 , sizeof(pre_g));
+        scanf("%d%d" , &n , &m);
+        for(int i = 0 ; i < n ; i++)
+            scanf("%s" , mpt[i]);
+        k = 0;
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < m ; j++) {
+                if(mpt[i][j] == '*') {
+                    pre_g[i][j] = ++k;
+                }
+            }
+        }
+        un = k , vn = k;
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < m; j++) {
+                if(pre_g[i][j]) {
+                    for(int k = 0 ; k < 4 ; k++) {
+                        int x = i + dir[k][0];
+                        int y = j + dir[k][1];
+                        if(x < 0 || x >= n || y < 0 || y >= m)
+                            continue;
+                        if(pre_g[x][y]) 
+                            g[pre_g[i][j]][pre_g[x][y]] = 1;
+                    }
+                }
+            }
+        }
+        int ans = hungary();
+        
+        printf("%d\n" , k - ans / 2);
+    }
+    return 0;
+}
