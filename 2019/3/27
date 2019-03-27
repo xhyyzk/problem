@@ -1,0 +1,182 @@
+PTA L2-008 输出字符串中最长对称子串（水题）
+#include<iostream>
+#include<string>
+using namespace std;
+const int MAXN = 1e5 + 10;
+string s;
+
+int main() {
+    getline(cin , s);
+    int len = s.length();
+    int l , r , max_ = 0;
+    for(int i = 0 ; i < len ; i++) {
+        for(int j = len - 1 ; j >= 0 ; j--) {
+            if(s[j] == s[i]) {
+                l = i;
+                r = j;
+                int flag = 1;
+                while(l <= r) {
+                    if(s[l] != s[r]) {
+                        flag = 0;
+                        break;
+                    }
+                    l++;
+                    r--;
+                }
+                if(flag)
+                    max_ = max(max_ , j - i + 1);
+            }
+        }
+    }
+    cout << max_ << endl;
+    return 0;
+}
+
+
+
+PTA L2-024 部落 (并查集水题）
+#include <cstdio>
+#include <set>
+#include <iterator>
+using namespace std;
+const int MAXN = 1e4 + 10;
+int rel[MAXN][MAXN];
+int n , k , a , b , q;
+bool vis[MAXN];
+int fa[MAXN];
+
+void init() {
+    for(int i = 1 ; i <= MAXN ; i++)
+        fa[i] = i;
+}
+
+int find_(int x) {
+    if(x != fa[x]) return fa[x] = find_(fa[x]);
+    else return x;
+}
+
+int cnt = 0;
+void union_(int a , int b)
+{
+    int p = find_(a) ;
+    int q = find_(b) ;
+    if (p == q)
+        return ;
+    fa[p] = q ;
+    ++cnt ;
+}
+
+set<int>s;
+
+int main() {
+    scanf("%d" , &n);
+    init();
+    while (n--)
+    {
+        int k ;
+        scanf ("%d" , &k) ;
+        k-- ;
+        scanf ("%d" , &a) ;
+        s.insert(a) ;
+        while (k--)
+        {
+            scanf ("%d" , &b) ;
+            union_(b , a) ;
+            s.insert(b) ;
+        }
+    }
+    printf ("%d %d\n" , s.size() , s.size() - cnt) ;
+    int T ;
+    scanf ("%d" , &T) ;
+    while (T--)
+    {
+        int b ;
+        scanf ("%d%d" , &a , &b) ;
+        if (find_(a) == find_(b))
+            printf ("Y\n") ;
+        else
+            printf ("N\n") ;
+    }
+    return 0;
+}
+
+
+
+PTA L3-008 喊山
+图上宽搜 ， 一个点最多可以传到第几个点
+代码
+#include<iostream>
+#include<vector>
+#include<cstring>
+#include<queue>
+using namespace std;
+const int MAXN = 1e4 + 10;
+int n , m , k , q , ans;
+vector<int>edge[MAXN];
+bool vis[MAXN];
+
+struct Node {
+    int num;
+    int step;
+};
+
+int bfs(int u) {
+    int max_ = 0;
+    int num = 0;
+    memset(vis, 0 , sizeof(vis));
+    queue<Node>q;
+    vis[u] = 1;
+    q.push(Node{u , 0});
+    
+    while(!q.empty()) {
+        Node now = q.front();
+        q.pop();
+        if(now.step >max_) {
+            max_ = now.step;
+            num = now.num;
+        }
+        for(int i = 0 ; i < edge[now.num].size() ; i++) {
+            Node tmp;
+            tmp.num = edge[now.num][i];
+            tmp.step = now.step + 1;
+            if(!vis[tmp.num]) {
+                vis[tmp.num] = 1;
+                q.push(tmp);
+            }
+        }
+    }
+    return num;
+}
+
+int main() {
+    cin >> n >> m >> k;
+    int u , v;
+    while(m--) {
+        cin >> u >> v;
+        edge[u].push_back(v);
+        edge[v].push_back(u);
+    }
+    while(k--) {
+        cin >> q;
+        int ans = bfs(q);
+        cout << ans << endl;
+    }
+}
+//input
+7 5 4
+1 2
+2 3
+3 1
+4 5
+5 6
+1 4 5 7
+output
+2
+6
+4
+0
+
+
+
+
+
