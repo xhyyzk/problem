@@ -1,0 +1,179 @@
+最大子段和 并输出起始点
+/*10
+-10 1 2 3 4 -5 -23 3 7 -21
+1
+10
+3
+-1 -5 -2
+3
+-1 0 -2
+
+10 1 4
+10 10 10
+0 -1 -2
+0 0 0*/
+
+
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e4 + 10;
+const int inf = 0x3f3f3f3f;
+int dp[MAXN];
+int a[MAXN];
+int n , m;
+
+int main() {
+    while(cin >> n && n) {
+        int flag = 0;
+        for(int i = 1 ; i <= n ; i++) {
+            cin >> a[i];
+            if(a[i] >= 0) flag = 1;
+        }
+        if(!flag) {
+            cout << "0" << " " << a[1] << " " << a[n] << endl;
+            continue;
+        }
+        int pos1 = 0 , pos2 = 0 , max_= 0;
+        for(int i = 1 ; i <= n ; i++) {
+            dp[i] = max(dp[i - 1] + a[i] , a[i]);
+        }
+        for(int i = 1 ; i <= n ; i++) {
+            //cout << dp[i] << " ";
+            if(max_ < dp[i]) {
+                max_ = dp[i];
+                pos1 = i;
+                //cout << max_ << " " << pos1 << endl;
+            }
+        }
+        int t = max_;
+        for(int i = pos1 ; i >= 1 ; i--) {
+            if(t - a[i] > 0) {
+                t -= a[i];
+                continue;
+            }
+            if(t - a[i] == 0) {
+                pos2 = i;
+                break;
+            }
+        }
+        cout << max_ << " " << a[pos2] << " " << a[pos1] << endl;
+    }
+    return 0;
+}
+
+PTA L2-026
+寻找一棵树的最低端
+注意起点并不一定是1
+/*
+13
+3 2 3 4
+2 5 6
+1 7
+1 8
+1 9
+0
+2 11 10
+1 13
+0
+0
+1 12
+0
+0
+
+12*/
+
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+int n , k , v;
+vector <int> edge[MAXN];
+int vis[MAXN];
+int a[MAXN];
+
+void dfs(int x , int deep) {
+    a[x] = deep;
+    for(int i = 0 ; i < edge[x].size() ; i++) {
+        dfs(edge[x][i] , deep + 1);
+    }
+}
+
+int main() {
+    scanf("%d" , &n);
+    memset(vis ,0 , sizeof(vis));
+    for(int i = 1 ; i <= n ; i++) {
+        cin >> k;
+        while(k--) {
+            cin >> v;
+            vis[v] = 1;
+            edge[i].push_back(v);
+        }
+    }
+    int pos = 0;
+    for(int i = 1 ; i <= n ; i++) {
+        if(!vis[i]) pos = i;
+    }
+    dfs(pos , 1);
+    int t = 0;
+    for(int i = 1 ; i <= n ; i++) {
+        if(a[k] < a[i])
+            k = i;
+    }
+    printf("%d\n" , k);
+    return 0;
+}
+
+求一个有向无环正权图，起点为1，中点为的最长路
+思路：把所有边权换成负权值 ， 再用Bellman_Ford 求最短路，再把dis[n] 取反就是答案
+/*input
+2 1
+1 2 3
+3 3
+1 2 5
+2 3 5
+1 3 3
+
+3
+10
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e4 + 10;
+const int inf = 0x3f3f3f3f;
+typedef long long ll;
+int n , m;
+int dis[MAXN];
+struct Edge {
+    int u , v , w;
+    Edge(int u , int v , int w) : u(u) , v(v) , w(w){}
+};
+vector<Edge>edge;
+
+void bellman_ford(int s , int n) {
+    for(int i = 1 ; i <= n ; i++) dis[i] = inf;
+    dis[s] = 0;
+    for(int i = 1 ; i < n ; i++) {
+        for(int j = 0 ; j < edge.size() ; j++) {
+            int u = edge[j].u;
+            int v = edge[j].v;
+            int w = edge[j].w;
+            if(dis[v] > dis[u] + w) {
+                dis[v] = dis[u] + w;
+            }
+        }
+    }
+    return ;
+}
+//n为点数， m为边数
+int main() {
+    while(cin >> n >> m && n && m) {
+        int u , v , w;
+        edge.clear();
+        for(int i = 1 ; i <= m ; i++) {
+            cin >> u >> v >> w;
+            edge.push_back(Edge{u , v , -w});
+        }
+        bellman_ford(1 , n);
+        cout << -dis[n] << endl;
+    }
+    return 0;
+}
