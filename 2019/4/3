@@ -1,0 +1,126 @@
+链接：https://ac.nowcoder.com/acm/contest/551/D
+来源：牛客网
+
+给定一个字符串，只含有可打印字符，通过删除若干字符得到新字符串，新字符串必须满足两个条件：
+原字符串中出现的字符，新字符串也必须包含。
+新字符串中所有的字符均不相同。
+新字符串的字典序是满足上面两个条件的最小的字符串。
+可以把string类型的数据当作int类型来处理
+/*
+bab
+ab
+*/
+代码
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e4 + 10;
+const int inf = 0x3f3f3f3f;
+typedef long long ll;
+
+int cur = 0;
+char ans[MAXN];
+string s;
+bool vis[1000];
+int n[1000];
+
+int main() {
+    cin >> s;
+    int len = s.length();
+    for(int i = 0 ; i < len ; i++) {
+        vis[s[i]] = false;
+        n[s[i]]++;
+    }
+    for(int i = 0 ; i < len ; i++) {
+        n[s[i]]--;
+        if(vis[s[i]]) continue;
+        while(cur > 0 && n[ans[cur]] > 0 && s[i] < ans[cur]) {
+            vis[ans[cur]] = false;
+            cur--;
+        }
+        cur++;
+        ans[cur] = s[i];
+        vis[s[i]] = true;
+    }
+    for(int i = 1 ; i < cur + 1 ; i++)
+        cout << ans[i];
+    cout << endl;
+    return 0;
+}
+
+
+链接：https://ac.nowcoder.com/acm/contest/551/F
+来源：牛客网
+规律题
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e6 + 10;
+const int inf = 0x3f3f3f3f;
+const int mod = 998244353;
+typedef long long ll;
+ll w , n , q;
+ll dp[MAXN];
+
+void init() {
+    dp[0] = 1;
+    for(int i = 1 ; i <= MAXN ; i++) {
+        dp[i] = (dp[i - 1] * (2 * i - 1)) % mod;
+    }
+}
+
+int main() {
+    init();
+    scanf("%lld%lld" , &w , &q);
+    while(q--) {
+        scanf("%lld" , &n);
+        printf("%lld\n" , (dp[n] * w) % mod);
+    }
+    return 0;
+}
+
+
+链接 https://ac.nowcoder.com/acm/contest/551/C
+这题主要是利用set自带的除重功能
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e6 + 10;
+const int inf = 0x3f3f3f3f;
+const int mod = 998244353;
+typedef long long ll;
+int n , m;
+set<string>st;
+string s;
+
+int main()
+{
+    int n, m;
+    int i, j;
+    long long ans = 0;
+    string s, temp;
+    set<string>st;
+    cin >> n >> m;
+    cin >> s;
+    if (m > 15)
+    {
+        for (i = m; i <= n; i++)
+            ans += (n - i + 1);
+                cout << ans;
+    }
+    else
+    {
+        for (i = m; i <= 15; i++)
+        {
+            for (j = 0; j < (int)s.size(); j++)
+            {
+                temp = s.substr(j, i);
+                if (temp.size() == i)
+                    st.insert(temp);
+            }
+        }
+        for (i = 16; i <= n; i++)
+            ans += (n - i + 1);
+        cout << ans + st.size();
+    }
+    return 0;
+}
