@@ -1,0 +1,388 @@
+https://ac.nowcoder.com/acm/contest/624/D
+有n个点，m条无向边，s个发射点，t个接受点，问从发射点到接受点的最短路是多少。
+可以加一个源点，建从源点到各发射点的有向边，边权为0，再加入一个汇点，建从接受点到汇点的有向边，边权为0。从源点到汇点跑最短路。
+注意边权为1e9，会爆long long ,所以inf要改为（1ll << 60）。
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e6 + 10;
+const ll INF = (1ll << 60);
+
+int n , m , s , t;
+
+struct Node {
+    ll d , pos;
+    bool operator < (const Node &r) const {
+        return d > r.d;
+    }
+};
+
+struct Edge {
+    ll u , v , w;
+};
+
+ll dis[MAXN];
+int vis[MAXN];
+vector<Edge>edge[MAXN];
+priority_queue<Node>q;
+
+void Dijstra(int s) {
+    while(!q.empty()) q.pop();
+    memset(vis, 0, sizeof(vis));
+    for(int i = 0; i <= n + 1; i++) dis[i] = INF;
+    dis[s] = 0;
+    q.push(Node{0,s});
+    while(!q.empty() ) {
+        Node t = q.top();
+        q.pop();
+        int u = t.pos;
+        if(vis[u]) continue;
+        vis[u] = 1;
+        int len = edge[u].size();
+        for(int i = 0; i < len; i++) {
+            Edge &e = edge[u][i];
+            if(dis[e.v] > dis[u] + e.w) {
+                dis[e.v] = dis[u] + e.w;
+                q.push(Node {dis[e.v], e.v});
+            }
+        }
+    }
+}
+
+int main() {
+    cin >> n >> m >> s >> t;
+    int k;
+    for(int i = 0; i < s; i++) {
+        scanf("%d", &k);
+        edge[0].push_back(Edge{0, k, 0});
+    }
+    for(int i = 0; i < t; i++) {
+        scanf("%d", &k);
+        edge[k].push_back(Edge{k, n+1, 0});
+    }
+    ll u, v, w;
+    for(int i = 0; i < m; i++) {
+        scanf("%lld%lld%lld", &u, &v, &w);
+        edge[u].push_back(Edge{u, v, w});
+        edge[v].push_back(Edge{v, u, w});
+    }
+    Dijstra(0);
+    if(dis[n+1] == INF) cout << "-1" << endl;
+    else cout << dis[n+1] << endl;
+    return 0;
+}
+
+/*input:
+10 14 3 3
+1 4 9
+6 8 10
+1 2 12
+2 3 4
+2 8 4
+3 4 5
+3 5 5
+3 8 9
+3 9 1
+3 10 8
+4 5 2
+5 6 7
+5 7 6
+6 7 14
+7 9 11
+7 10 23
+ouput:
+9*/
+
+
+https://ac.nowcoder.com/acm/contest/549/E
+矩阵表示第一天的时候u到v有多少条路径，然后直接做矩阵k次幂就能得到k天从u到v的路径数
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e6 + 10;
+const int mod = 1e9 + 7;
+const ll INF = (1ll << 60);
+int n , m , k , s;
+struct Mat {
+    ll a[110][110];
+    Mat() {memset(a , 0 , sizeof(a));}
+    Mat operator* (const Mat &rhs) const {
+        Mat res;
+        for(int i = 1 ; i <= n ; i++) {
+            for(int j = 1 ; j <= n ; j++) {
+                for(int k = 1 ; k <= n ; k++) {
+                    res.a[i][j] = (res.a[i][j] + a[i][k] * rhs.a[k][j]) % mod;
+                }
+            }
+        }
+        return res;
+    }
+}g,res;
+
+void fpow(int k) {
+    while(k) {
+        if(k & 1) res = res * g;
+        g = g * g;
+        k >>= 1;
+    }
+}
+
+int main() {
+    scanf("%d%d%d%d" , &n , &m , &k , &s);
+    int u , v;
+    while(m--) {
+        scanf("%d%d" , &u , &v);
+        g.a[u][v]++;
+    }
+    for(int i = 1 ; i <= n ; i++) res.a[i][i] = 1;
+    fpow(k);
+    ll ans = 0;
+    for(int i = 1 ; i <= n ; i++) {
+        if(i != s) {
+            ans += res.a[s][i];
+            ans %= mod;
+        }
+    }
+    printf("%lld\n" , ans % mod);
+    return 0;
+}
+/*input
+4 5 2 1
+1 2
+1 3
+2 3
+4 1
+output
+2*/
+
+
+https://ac.nowcoder.com/acm/contest/549/F
+问一棵树上两点间的最短距离，边权为1 ，还有一条边权为0的点。
+首先由lca可以求出两点间的最短距离是deep[u] + deep[v] - 2*deep[lca(u,v)] , 从边权为0的那条边的一个点跑最短路，得到最短距离为dis[u]+dis[v].
+取较小的值即可.
+注：因为是一棵树，所以dij堆优不了，还有q次查询
+代码：
+const int inf=0x3f3f3f3f;
+const ll INF=9e18;
+const int N=3e5+50;
+struct edge{ int v,w; };
+vector<edge> G[N];
+int n,U,V,dep[N],Fa[N][22];
+ 
+void dfs(int u,int fa) {
+    dep[u]=dep[fa]+1;
+    Fa[u][0]=fa;
+    for(int i=1;(1<<i)<=dep[u];i++) Fa[u][i]=Fa[Fa[u][i-1]][i-1];
+    for(auto &e:G[u]) {
+        int v=e.v;
+        if(v==fa) continue;
+        dfs(v,u);
+    }
+}
+int lca(int x,int y) {
+    if(dep[x]<dep[y]) swap(x,y);
+    for(int i=20;i>=0;i--) if((1<<i)<=dep[x]-dep[y]) x=Fa[x][i];
+    if(x==y) return x;
+    for(int i=20;i>=0;i--) if(Fa[x][i]!=Fa[y][i]) x=Fa[x][i],y=Fa[y][i];
+    return Fa[x][0];
+}
+int solve(int x,int y) { return dep[x]+dep[y]-2*dep[lca(x,y)]; }
+ 
+struct node{
+    int u,dis;
+    node() {}
+    node(int u,int dis):u(u),dis(dis) {}
+    bool operator <(const node &rhs) const {
+        return dis>rhs.dis;
+    }
+};
+int dis[N];
+priority_queue<node> q;
+void spfa() {
+    for(int i=1;i<=n;i++) dis[i]=inf;
+    dis[U]=0;
+    q.push({U,0});
+    while(!q.empty()) {
+        int u=q.top().u,d=q.top().dis;q.pop();
+        if(dis[u]<d) continue;
+        for(auto &e:G[u]) {
+            int v=e.v,w=e.w;
+            if(dis[v]>dis[u]+w) {
+                dis[v]=dis[u]+w;
+                q.push({v,dis[v]});
+            }
+        }
+    }
+}
+int main() {
+    scanf("%d",&n);
+    for(int i=1;i<n;i++) {
+        int u,v;
+        scanf("%d%d",&u,&v);
+        G[u].push_back({v,1});
+        G[v].push_back({u,1});
+    }
+    dfs(1,0);
+    scanf("%d%d",&U,&V);
+    G[U].push_back({V,0});
+    G[V].push_back({U,0});
+    spfa();
+    int q;
+    scanf("%d",&q);
+    while(q--) {
+        int x,y;
+        scanf("%d%d",&x,&y);
+        printf("%d\n",min(solve(x,y),dis[x]+dis[y]));
+    }
+    return 0;
+}
+/*input
+4
+1 2
+1 3
+2 4
+3 4
+2
+1 3
+3 4
+output:
+1
+0
+
+https://ac.nowcoder.com/acm/contest/549/J
+可以通过枚举gcd(i,j)的因子，再减去重复的，就可以求出它对答案的贡献，注意从min(n,m)到1枚举
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e6 + 10;
+const int mod = 1e9 + 7;
+const int INF = 0x3f3f3f3f;
+ll n , m;
+ll f[MAXN];
+
+int main() {
+    scanf("%lld%lld" , &n , &m);
+    ll ans = 0;
+    for(ll i = min(n,m) ; i >= 1; i--) {
+        f[i] = (n/i)*(m/i)%mod;
+        for(ll j = 2*i ; j <= min(n,m) ; j += i) {
+            f[i] = f[i] - f[j];
+            f[i] = (f[i] + mod) % mod;
+        }
+        ans = (ans + f[i]*i*i%mod)%mod;
+    }
+    printf("%lld\n" , (ans+mod)%mod);
+    return 0;
+}
+/*input:
+2 2
+output:
+7
+*/
+
+https://ac.nowcoder.com/acm/contest/549/H
+遍历每个矩形的高，以这个矩形往两边拓展，当高度小于它就break掉，找最大值
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e6 + 10;
+const int mod = 1e9 + 7;
+const int INF = 0x3f3f3f3f;
+int n;
+ll w[MAXN] , h[MAXN];
+
+int main() {
+    scanf("%d" , &n);
+    for(int i = 1 ; i <= n ; i++)
+        scanf("%lld" , &w[i]);
+    for(int i = 1 ; i <= n ; i++)
+        scanf("%lld" , &h[i]);
+    ll x , y , ans = 0;
+    for(int i = 1 ; i <= n ; i++) {
+        x = w[i] , y = h[i];
+        for(int j = i - 1 ; j >= 1 ; j--) {
+            if(h[j] >= h[i]) x += w[j];
+            else break;
+        }
+        for(int j = i + 1 ; j <= n ; j++) {
+            if(h[j] >= h[i]) x+= w[j];
+            else break;
+        }
+        ans = max(ans , x*y);
+    }
+    printf("%lld\n" , ans);
+    return 0;
+}
+/*
+input:
+7
+1 1 1 1 1 1 1
+2 1 4 5 1 3 3
+output:
+8*/
+
+
+https://ac.nowcoder.com/acm/contest/624/J
+求冒泡排序的平均复杂度
+n(n-1）/4；
+注意分数求模要用逆元
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e6 + 10;
+const int mod = 998244353;
+const int INF = 0x3f3f3f3f;
+int t;
+ll n;
+
+ll Extend_Euclid(ll a, ll b, ll & x, ll & y)
+{
+    if(b == 0)
+    {
+        x = 1;
+        y = 0;
+        return a;
+    }
+    ll d = Extend_Euclid(b , a % b , x , y);
+    ll t = x;
+    x = y;
+    y = t - a / b * y;
+    return d;
+}
+
+ll inv(ll a, ll n)
+{
+    ll x,y;
+    ll t = Extend_Euclid(a , n , x , y);
+    if(t != 1)
+        return -1;
+    return (x % n + n) % n;
+}
+
+int main() {
+    scanf("%d" , &t);
+    while(t--) {
+        scanf("%lld" , &n);
+        ll ans = ((n-1)%mod)*(n%mod)%mod*inv(4,mod)%mod;
+        printf("%lld\n" , ans);
+    }
+    return 0;
+}
+/*input：
+3
+1
+3
+1000000000000000000
+output：
+0
+499122178
+178803651
