@@ -1,0 +1,125 @@
+bzoj 1041
+求圆上的整点
+x^2 + y^2 = r^2;
+(r-x((r+x)=y^2;
+令d=gcd(r-x,r+x),可得r-x=d*u^2,r+x=d*v^2,可知u,v互质，且u < v;
+从而2r=d(u^2+v^2);
+所以枚举2r的因子，再判定gcd(u,v) == 1;
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e7 + 10;
+const int mod = 998244353;
+const int INF = 0x3f3f3f3f;
+const ll INFLL = 0x3f3f3f3f3f3f3f3f;
+int vis[MAXN];
+int a[MAXN];
+int n;
+ll r;
+
+ll gcd(ll a , ll b) {
+    if(a % b == 0) return b;
+    else return gcd(b , a % b);
+}
+
+
+int main() {
+    cin >> r;
+    ll d, a, b;
+    ll ans = 0;
+    for (d = 1; d * d <= 2*r; ++d) {
+        if ((2 * r) % d) continue;
+        ll t = (2 * r) / d;
+        for (a = 1; a * a <= t; ++a) {
+            b = sqrt(t - a * a);
+            if (b * b != t - a * a) continue;
+            if (a >= b) continue;
+            if (gcd(a, b) > 1) continue;
+            ++ans;
+        }
+        if (d * d == 2 * r) continue;     
+        for (a = 1; a * a <= d; ++a) {
+            b = sqrt(d - a * a);
+            if (b * b != d - a * a) continue;
+            if (a >= b) continue;
+            if (gcd(a, b) > 1) continue;
+            ++ans;
+        }
+    }
+    ans = (ans + 1) * 4;
+    cout << ans << endl;
+    return 0;
+}
+
+bzoj 1034
+贪心
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e5 + 10;
+const int mod = 998244353;
+const int INF = 0x3f3f3f3f;
+const ll INFLL = 0x3f3f3f3f3f3f3f3f;
+int n,a[100002],b[100002],ans;
+void solve()
+{
+    int l1=1,l2=1,r1=n,r2=n;
+    while (l1<=r1&&l2<=r2)
+    {
+        if (a[l1]>b[l2]) ans+=2,l1++,l2++;
+        else if (a[r1]>b[r2]) ans+=2,r1--,r2--;
+        else ans+=(a[l1]==b[r2]),l1++,r2--;
+    }
+}
+main()
+{
+    scanf("%d",&n);
+    for (int i=1;i<=n;i++) scanf("%d",&a[i]);
+    for (int i=1;i<=n;i++) scanf("%d",&b[i]);
+    sort(a+1,a+n+1);
+    sort(b+1,b+n+1);
+    solve();
+    printf("%d ",ans);
+    ans=0;
+    for (int i=1;i<=n;i++) swap(a[i],b[i]);
+    solve();
+    printf("%d",2*n-ans);
+}
+
+
+bzoj 1406
+求1到n中 x^2 mod n == 1的x
+代码
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e5 + 10;
+const int mod = 998244353;
+const int INF = 0x3f3f3f3f;
+const ll INFLL = 0x3f3f3f3f3f3f3f3f;
+set<ll>s;
+ll n;
+
+int main() {
+    scanf("%lld" , &n);
+    for(ll i = 1 ; i * i <= n ; i++) {
+        if(n % i == 0) {
+            ll t = n / i;
+            for(ll j = 1 ; j <= n ; j += t) {
+                if((j + 1) % i == 0) s.insert(j);
+            }
+            for(ll j = t - 1 ; j <= n ; j += t) {
+                if((j - 1) % i == 0) s.insert(j);
+            }
+        }
+    }
+    if(s.size() == 0) printf("None\n");
+    for(set<ll> :: iterator i = s.begin() ; i != s.end() ; i++) {
+        printf("%lld\n" , *i);
+    }
+    return 0;
+}
+
