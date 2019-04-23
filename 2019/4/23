@@ -1,0 +1,124 @@
+https://ac.nowcoder.com/acm/contest/634/C
+利用分块的思想，分析可知这些数对一定是和2*k互质的，所以只要枚举2*k的素因子，再利用容斥的思想删除即可（奇数减，偶数加）；
+容斥部分可以用二进制来确定素因子个数的奇偶性。
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e6 + 10;
+const int mod = 1e9 + 7;
+ll l , r , k;
+ll fac[MAXN];
+ 
+int main() {
+    cin >> l >> r >> k;
+    int cnt = 0;
+    ll tmp = 2*k;
+    for(ll i = 2 ; i * i <= tmp ; ++i) {
+        if(tmp % i == 0) fac[cnt++] = i;
+        while(tmp % i == 0) {
+            tmp /= i;
+        }
+    }
+    if(tmp > 1) fac[cnt++] = tmp;
+    ll ans = 0;
+    for(int i = 0 ; i < (1 << cnt); i++) {
+        ll t = 1;
+        int play = 0;
+        for(int j = 0 ; j < cnt ; j++) {
+            if(i & (1 << j)) {
+                play++;
+                t = t*fac[j];
+            }
+        }
+        ll now = max(0ll , r/t - (l + 2*k - 1) / t);
+        if(play % 2 == 0) ans += now;
+        else ans -= now;
+    }
+    cout << ans << endl;
+    return 0;
+}
+
+
+https://ac.nowcoder.com/acm/contest/637/C
+输出l到r区间有多少的个数是由两个素数的乘积；
+就是最朴素的做法，找出l到R区间所有数的素因子及其个数。
+具体找法代码中有注释。（利用欧拉公式，当x足够大时 x/2 + x/3 + x/4 +......+x/x = logx).
+所以复杂度为nlogn.
+代码
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e5 + 10;
+const int mod = 1e9 + 7;
+ll l , r , s[MAXN];
+vector<ll>f[MAXN];
+
+int main() {
+    scanf("%lld%lld" , &l , &r);
+    for(ll i = l ; i <= r ; i++) s[i - l] = i;
+    for(ll i = 2 ; i * i <= r ; i++) {
+        for(ll j = (l + i - 1) / i * i ; j <= r ; j += i) { // 找到l到r第一个i的倍数，再递增上去 ，复杂度为logn。
+            while(s[j - l] % i == 0) {
+                f[j - l].push_back(i);
+                s[j - l] /= i;
+            }
+        }
+    }
+    ll cnt = 0;
+    for(ll i = 0 ; i <= r - l ; i++) {
+        if(s[i] > 1) f[i].push_back(s[i]);
+        sort(f[i].begin() , f[i].end());
+        if(f[i].size() == 2) cnt++;
+    }
+    printf("%lld\n" , cnt);
+    for(ll i = 0 ; i <= r - l ; i++) {
+        if(f[i].size() == 2)
+            printf("%lld %lld %lld\n" , i + l , f[i][0] , f[i][1]);
+    }
+    return 0;
+}
+
+
+https://ac.nowcoder.com/acm/contest/637/J
+博弈题。SG函数打表找规律：奇数为0，偶数为可以除2除几次。
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e5 + 10;
+const int mod = 1e9 + 7;
+int n , v;
+
+int sg[10000];
+
+/*int get(int x) {
+    if(sg[x] !=-1) return sg[x];
+    int vis[10000];
+    memset(vis , 0 , sizoef(vis));
+    for(int i = 1 ; i < x ; i++) 【
+    if(x % i == 0) {
+        int t = get(x - i);
+        vis[t] = 1;
+    }
+    for(int i = 0 ;; i++) {
+        if(!vis[i]) return sg[x] = i;
+    }
+}*/
+
+int main() {
+    scanf("%d" , &n);
+    ll ans = 0;
+    for(int i = 0 ; i < n ; i++) {
+        scanf("%d" , &v);
+        int cnt = 0;
+        while(v % 2 == 0) {
+            v /= 2;
+            cnt++;
+        }
+        ans ^= cnt;
+    }
+    if(ans == 0) printf("Lose\n");
+    else printf("Win\n");
+    return 0;
+}
