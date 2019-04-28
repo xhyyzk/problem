@@ -1,0 +1,75 @@
+https://codeforces.com/contest/1157/problem/E
+每次找和a[i]的和模以n最小的值，具体代码有注释。这题主要是学会一个STL的容器multiset，与set不同的是，它可以存在相同的元素。
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 2e5 + 10;
+const int mod = 1e9 + 7;
+int n;
+int a[MAXN] , b[MAXN] , c[MAXN];
+multiset<int>s;
+
+int main() {
+    cin >> n;
+    for(int i = 1 ; i <= n ; i++) cin >> a[i];
+    for(int i = 1 ; i <= n ; i++) {
+        cin >> b[i];
+        s.insert(b[i]);
+    }
+    for(int i = 1 ; i <= n ; i++) {
+        int rep = (n - a[i]) % n; //找和a[i]的和模以n最小的。
+        multiset<int>::iterator it = s.lower_bound(rep); //用STL自带的函数，不然要O{n).
+        if(it == s.end()) {
+            it = s.begin();
+        }
+        c[i] = (a[i] + *it) % n;
+        s.erase(it);
+    }
+    for(int i = 1 ; i <= n ; i++)
+        cout << c[i] << " ";
+    cout << endl;
+    return 0;
+}
+
+
+https://codeforces.com/contest/1157/problem/D
+构造一个和为n的序列，要求a[i] < a[i+1] <= 2*a[i].
+可以通过上界和下界来判定每一个位置的最大值，再判定合法性。i,i+1,i+2,...,i+k-1是下界，i，2i，2^2i,...,2^(k-1)i是上界。
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e5 + 10;
+const int mod = 1e9 + 7;
+int n , k;
+int a[MAXN];
+
+ll sum(int u) {
+    return 1ll * u * (u + 1) / 2;
+}
+
+double sumb(ll u) {
+    return pow(2.0 , u) - 1;
+}
+
+int main() {
+    cin >> n >> k;
+    for(int i = 1 ; i <= k ; i++) {
+        int rep = max(a[i - 1] + 1 , (int)ceil((double)n / sumb(k + 1 - i)));
+        if(sum(rep + k - i) - sum(rep - 1) > n) {
+            cout << "NO" << endl;
+            return 0;
+        }
+        a[i] = rep;
+        n -= rep;
+    }
+    cout << "YES" << endl;
+    
+    for(int i = 1 ; i <= k ; i++)
+        cout << a[i] << " ";
+    cout << endl;
+    return 0;
+}
