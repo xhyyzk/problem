@@ -1,0 +1,102 @@
+hdu 3544
+有一个x*y的巧克力，先手只能水平切，即切成（a+b)*y的形状，后手只能垂直切，即切成x*（a+b)的形状，无法再进行操作的人输，问赢家是谁
+
+代码
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int mod = 1e9 + 7;*
+typedef long long ll;
+int n , t;
+ll x[MAXN] , y[MAXN];
+
+int main() {
+    cin >> t;
+    for(int i = 1 ; i <= t ; i++) {
+        cin >> n;
+        ll sum1 = 0 , sum2 = 0;
+        for(int j = 1 ; j <= n ; j++) {
+            cin >> x[j] >> y[j];
+            while(x[j] > 1 && y[j] > 1) {
+                x[j] >>= 1;
+                y[j] >>= 1;
+                sum1++;
+                sum2++;
+            }
+            if(x[j] == 1) sum2 += (y[j] - 1); //当一方切成1时，就只有另一方操作了
+            else sum1 += (x[j] - 1);
+        }
+        if(sum1 <= sum2) cout << "Case " << i << ": Bob" << endl;
+        else cout << "Case " << i << ": Alice" << endl;
+    }
+    return 0;
+}
+
+
+hdu 3951
+n个石子组成一个圈，每次可以取连续的1~k个，取完最后一颗的石子的人嬴。问先手嬴还是后手嬴。
+k等于1时就是奇偶性，其他考虑对称性，每次先手取完，都在对称的地方取即可，除非k大于等于n,先手全部取完。
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int mod = 1e9 + 7;
+typedef long long ll;
+int t , n , k;
+string s;
+
+int main() {
+    cin >> t;
+    for(int i = 1 ; i <= t ; i++) {
+        cin >> n >> k;
+        if(k == 1) {
+            if(n % 2 == 1) cout << "Case " << i << ": first" << endl;
+            else cout << "Case " << i << ": second" << endl;
+        }
+        else {
+            if(n <= k) cout << "Case " << i << ": first" << endl;
+            else cout << "Case " << i << ": second" << endl;
+        }
+    }
+    return 0;
+}
+
+
+hdu 1850
+有m堆石子，每堆有Ni个石子，问先手能赢的话有几种嬴的方法。无法嬴则输出0.
+做前缀和后缀的异或和，逐个遍历每堆石子之前和之后的异或和，结果比它小就多一种方法。因为异或和为0时先手必败，把这个状态推给对面即可
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int mod = 1e9 + 7;
+typedef long long ll;
+int n;
+int a[110] , sum1[110] , sum2[110];
+
+int main() {
+    while(cin >> n && n) {
+        memset(sum1 , 0 , sizeof(sum1));
+        memset(sum2 , 0 , sizeof(sum2));
+        for(int i = 1 ; i <= n ; i++) {
+            cin >> a[i];
+            sum1[i] = sum1[i - 1] ^ a[i];
+        }
+        for(int i = n ; i >= 1 ; i--) {
+            sum2[i] = sum2[i + 1] ^ a[i];
+        }
+        if(sum1[n] == 0) cout << "0" << endl;
+        else {
+            int ans = 0;
+            for(int i = 1 ; i <= n ; i++) {
+                int t = sum1[i - 1] ^ sum2[i + 1];
+                if(t < a[i]) ans++;
+            }
+            cout << ans << endl;
+        }
+    }
+    return 0;
+}
+注：hdu 2876也是一样的处理方法
