@@ -1,0 +1,44 @@
+https://codeforces.com/contest/1162B
+定义一个矩阵要求从左至右，从上至下都严格递增。现有两个矩阵，其中对应的位置的值可以相互交换，问能否通过这样的操作使这两个矩阵都为定义的矩阵。
+可以把小的数放在一个矩阵，大的数也放在一个矩阵里，再进行判断。
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 2e5 + 10;
+const int mod = 1e9 + 7;
+typedef long long ll;
+int n, m;
+int mp1[55][55], mp2[55][55], vis1[55][55], vis2[55][55]; 
+
+int main() {
+    cin >> n >> m;
+    for(int i = 1; i <= n; ++i) {
+        for(int j = 1; j <= m; ++j)
+            cin >> mp1[i][j];
+    }
+    for(int i = 1; i <= n; ++i) {
+        for(int j = 1; j <= m; ++j) {
+            cin >> mp2[i][j];
+            if(mp1[i][j] > mp2[i][j]) swap(mp1[i][j] , mp2[i][j]); //把小的数和大的数分别放在两个矩阵里
+        }
+    }
+    int flag = 1;
+    for(int i = 1; i <= n; ++i) {
+        for(int j = 1; j <= m; ++j) {
+            flag &= mp1[i][j] > mp1[i - 1][j] && mp1[i][j] > mp1[i][j - 1];
+        }
+    }
+    for(int i = 1; i <= n; ++i) {
+        for(int j = 1; j <= m; ++j) {
+            flag &= mp2[i][j] > mp2[i - 1][j] && mp2[i][j] > mp2[i][j - 1];
+        }
+    }
+    if(!flag) {
+        cout << "Impossible" << endl;
+        return 0;
+    }
+    else cout << "Possible" << endl;
+    return 0;
+}
+
