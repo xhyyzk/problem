@@ -1,0 +1,100 @@
+https://ac.nowcoder.com/acm/contest/893/C
+推公式得出是等差数列
+
+代码；
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 2e5 + 10;
+const int mod = 1e9 + 7;
+typedef long long ll;
+int n, m, t;
+
+int main() {
+    cin >> t;
+    ll l, r;
+    while(t--) {
+        cin >> l >> r;
+        int pos1 = 0  , pos2 = 0;
+        for(int i = l; ; ++i) {
+            if(i % 192 == 1) {
+                pos1 = i;
+                break;
+            }
+        }
+        ll n1 = (pos1 - 1) / 192;
+        for(int i = r; ; --i) {
+            if(i % 192 == 1) {
+                pos2 = i;
+                break;
+            }
+        }
+        ll n2 = (pos2 - 1) / 192;
+        ll ans = (pos1 + pos2) * (n2 - n1 + 1) / 2;
+        cout << ans << endl;
+    }
+    return 0;
+}
+
+
+https://codeforces.com/contest/1162/problem/D
+把一个圆均分成n分，有m条线段，端点就是圆上的点，问是否可以转过小于360°的角，使与原图重合
+枚举n的因子k，所以转过的角度就相当于（a+k,b+k),判断是否在集合里即可
+这里有一个新的STL unordered_set.
+
+代码：
+#include <cstdio>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+typedef long long ll;
+
+int N, M;
+
+ll chord(ll x, ll y)
+{
+    x %= N;
+    y %= N;
+    if (x > y) swap(x, y);
+    return (x << 32) | y;
+}
+
+ll rotate(ll c, int a)
+{
+    ll y = c & ((1LL << 32) - 1);
+    ll x = (c >> 32);
+    return chord(x + a, y + a);
+}
+
+int main()
+{
+    unordered_set<ll> us;
+    vector<ll> cs;
+    scanf("%d%d", &N, &M);
+    for (int i = 0; i < M; ++i) {
+        int x, y;
+        scanf("%d%d", &x, &y);
+        ll c = chord(x, y);
+        cs.push_back(c);
+        us.insert(c);
+    }
+
+    for (int i = 1; i < N; ++i) {
+        if (N % i) continue;
+        int ok = true;
+        for (auto& x : cs) {
+            if (!us.count(rotate(x, i))) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) {
+            printf("Yes\n");
+            return 0;
+        }
+    }
+    printf("No\n");
+    return 0;
+}
+
