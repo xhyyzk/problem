@@ -1,0 +1,133 @@
+https://ac.nowcoder.com/acm/contest/879/B
+求一个二项分布的概率和。
+这题主要是学习一个组合数取模的方法。
+组合数可以写成 C(n, m) = n!/m!*(n-m)!,所以在模 p意义下的逆元就是(m!)^(mod - 2),由这样的组合数的式子就可以在线性时间里处理出组合数
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e5 + 10;
+const int mod = 998244353;
+const ll INF = (1ll << 60);
+ll n, k, p;
+ll a[MAXN], inv[MAXN];
+
+ll C(int n, int m) {
+    if(n < m) return 0;
+    if(n < 0 || m < 0) return 0;
+    return a[n] * inv[m] % mod * inv[n - m] % mod;
+}
+ 
+ll quickpow(ll a, int p) {
+    ll ans = 1;
+    while(p) {
+        if(p & 1) ans = ans * a % mod;
+        a = a * a % mod;
+        p >>= 1;
+    }
+    return ans;
+}
+ 
+int main() {
+    scanf("%lld%lld%lld", &n, &k, &p);
+    a[0] = inv[0] = 1;
+    for(int i = 1; i <= n; ++i) {
+        a[i] = a[i - 1] * i % mod;
+    }
+    inv[n] = quickpow(a[n], mod - 2);
+    for(int i = n - 1; i >= 1; --i) inv[i] = inv[i + 1] * (i + 1) % mod;
+    ll ans = 0;
+    for(int i = k; i <= n; ++i) {
+        ans += C(n, i) * quickpow(1 - p + mod, n - i) % mod * quickpow(p, i) % mod;
+    }
+    printf("%lld\n", ans % mod);
+}
+
+
+https://ac.nowcoder.com/acm/contest/879/I
+因为常数比较大， nlogk会超时，积性函数筛一下就好。是筛（n^k）这个函数的值，之后直接枚举i就好了
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e7 + 10;
+const int mod = 1e9 + 7;
+const ll INF = (1ll << 60);
+ll n, k;
+ll p[MAXN], q[MAXN];
+bool vis[MAXN];
+
+ll quickpow(ll a, ll b) {
+    ll res = 1;
+    while(b) {
+        if(b & 1) res = res * a % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+int main() {
+    scanf("%lld%lld", &n, &k);
+    int cnt = 0;
+    q[1] = 1;
+    memset(vis, 0, sizeof(vis));
+    for(int i = 2; i <= n; ++i) {
+        if(!vis[i]) {
+            p[cnt++] = i;
+            q[i] = quickpow(i, k);
+        }
+        for(int j = 0; j < cnt && i * p[j] <= n; ++j) {
+            vis[p[j] * i] = 1;
+            q[p[j] * i] = q[p[j]] * q[i] % mod;
+            if(i % p[j] == 0) break;
+        }
+    }
+    ll ans = 0;
+    for(int i = 1; i <= n; ++i) {
+        ans += q[i] * (n / i) % mod;
+        ans %= mod;
+    }
+    printf("%lld\n", ans);
+    return 0;
+}
+
+https://ac.nowcoder.com/acm/contest/879/A
+邻接矩阵的k次幂表示a[i][j]表示走k次从i走到j有几种走法；
+可以看成是是一个全1矩阵减去对角线上为1，其他为0的矩阵的k次幂
+推出公式为(（n-1)^k + (n-1)(-1)^k)/n
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 1e7 + 10;
+const int mod = 998244353;
+const ll INF = (1ll << 60);
+ll n, k;
+ll p[MAXN], q[MAXN];
+bool vis[MAXN];
+
+ll quickpow(ll a, ll b) {
+    ll res = 1;
+    while(b) {
+        if(b & 1) res = res * a % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+int main() {
+    scanf("%lld%lld", &n, &k);
+    ll res = quickpow(n - 1, k) + pow(-1, k) * (n - 1);
+    res = (res % mod + mod) % mod;
+    res = res * quickpow(n, mod - 2) % mod;
+    printf("%lld\n", (res % mod + mod) % mod);
+    return 0;
+}
+
+
+
