@@ -1,0 +1,62 @@
+https://codeforces.com/contest/1159/problem/B
+给一个数组，求最大的k，对于任意1<=i,j<=n, k <= min(a[i], a[j])/|i-j|恒成立。
+题目即为求min(a[i], a[j])/|i-j|的最小值，显然当i等于j的时候对任意k都成立。令i<j，即为求min(a[i]/|i-j|, a[j]/|i-j|)。对于a[i]/|i-j|的最小值为
+a[i]/max(i-1, n-i)。所以只要遍历数组，对于每个a[i]求a[i]/max(i-1, n-i)，找其最小值即可。
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 3e5 + 10;
+const int mod = 998244353;
+const ll INF = (1ll << 60);
+int n;
+int a[MAXN];
+
+int main() {
+    cin >> n;
+    int min_ = 0x3f3f3f3f;
+    for(int i = 1; i <= n; ++i) {
+        cin >> a[i];
+        int t = max(i - 1, n - i);
+        min_ = min(a[i] / t, min_);
+    }
+    cout << min_ << endl;
+    return 0;
+}
+
+
+
+https://codeforces.com/contest/1159/problem/C
+一道贪心题
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MAXN = 3e5 + 10;
+const int mod = 998244353;
+const ll INF = (1ll << 60);
+int n, m;
+ll b[MAXN], g[MAXN];
+
+int main() {
+    cin >> n >> m;
+    for(int i = 1; i <= n; ++i) cin >> b[i];
+    for(int i = 1; i <= m; ++i) cin >> g[i];
+    sort(b + 1, b + n + 1);
+    sort(g + 1, g + n + 1);
+    if(b[n] > g[1]) {
+        cout << -1 << endl;
+        return 0;
+    }
+    ll ans = 0;
+    for(int i = 2; i <= m - 1; ++i) ans += g[i];
+    ans += b[n];
+    if(b[n] = g[1]) {
+        ans += b[n - 1];
+    }
+    else ans += g[1];
+    ans += b[n - 1] * (m - 1);
+    for(int i = 1; i <= n - 2; ++i) ans += b[i] * m;
+    cout << ans << endl;
+    return 0;
+} 
