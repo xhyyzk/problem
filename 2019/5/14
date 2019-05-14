@@ -1,0 +1,83 @@
+https://codeforces.com/contest/1163/problem/C1
+给出n个点，问可以多少对交叉的直线；
+可以处理出两两个点确定的直线的斜率， 把直线表示成ax-by=c.求出a=y1-y2,b=x1-x2,就可以表示出c，利用set的去重即可求出多少种斜率，进而就可以求出有多少
+对直线交叉。
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+typedef long long ll;
+int n;
+int x[1010], y[1010];
+map<pair<int,int>, set<ll> > slope_map;
+
+int gcd(int a, int b) 
+{
+	if (a == 0)
+		return b;
+	return gcd(b % a, a);
+}
+
+int main()
+{
+	cin >> n;
+	for (int i = 1; i <= n; ++i) cin >> x[i] >> y[i];
+	ll total = 0, res = 0;
+	for (int i = 1; i <= n - 1; ++i)
+		for (int j = i + 1; j <= n; ++j)
+		{
+			int x1 = x[i], y1 = y[i], x2 = x[j], y2 = y[j]; 
+			int a = y1 - y2, b = x1 - x2;
+			int d = gcd(a, b); a /= d, b /= d;
+			if (a < 0 || (a == 0 && b < 0))
+			{
+			    a = -a;
+			    b = -b;
+			}
+			pair<int,int> slope(a, b);
+			long long c = 1LL * a * x1 - 1LL * b * y1;
+			if (!slope_map[slope].count(c))
+			{
+				++total;
+				slope_map[slope].insert(c);
+				res += total - slope_map[slope].size();
+			}
+		}
+	printf("%lld\n", res);
+}
+
+
+https://blog.csdn.net/cj1064789374/article/details/88653100
+矩阵的用法。
+
+代码：
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+    double x[10],y[10];
+    int t;
+    scanf("%d",&t);
+    while(t--)
+    {
+        for(int i=1;i<=6;i++)
+            scanf("%lf%lf",&x[i],&y[i]);
+        double a,b,c,d;
+        for(int i=2;i<=3;i++)
+            x[i]-=x[1],y[i]-=y[1];
+        for(int i=5;i<=6;i++)
+            x[i]-=x[4],y[i]-=y[4];
+        c=(x[5]*x[3]-x[6]*x[2])/(y[2]*x[3]-x[2]*y[3]);
+        a=(x[5]-y[2]*c)/x[2];
+        d=(y[5]*x[3]-y[6]*x[2])/(y[2]*x[3]-x[2]*y[3]);
+        b=(y[5]-y[2]*d)/x[2];
+        int q;
+        scanf("%d",&q);
+        while(q--)
+        {
+            scanf("%lf%lf",&x[2],&y[2]);
+            x[2]-=x[1],y[2]-=y[1];
+            printf("%.2f %.2f\n",x[2]*a+y[2]*c+x[4],x[2]*b+y[2]*d+y[4]);
+        }
+    }
+    return 0;
+}
