@@ -1,0 +1,43 @@
+https://ac.nowcoder.com/acm/contest/897/M
+给一个n, c,c是a, b的lcm,且a<=n, b<=n，求a*b的最大值。
+直接枚举c的因子再判断条件即可
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e6 + 10;
+const double pi = acos(-1.0);
+typedef long long ll;
+int n, c, t;
+ll a[MAXN];
+
+int gcd(int a, int b) {
+    if(a % b == 0) return b;
+    else return gcd(b, a % b);
+}
+
+int main() {
+    scanf("%d", &t);
+    while(t--) {
+        scanf("%d%d\n", &n, &c);
+        memset(a, 0, sizeof(a));
+        int cnt = 0;
+        for(int i = 1; i * i <= c; ++i) {
+            if(c % i == 0) {
+                a[cnt++] = i;
+                if(c / i != i) a[cnt++] = c / i; 
+            }
+        }
+        ll ans = 0;
+        for(int i = 0; i < cnt; ++i) {
+            for(int j = i; j < cnt; ++j) {
+                if(a[i] <= n && a[j] <= n && a[i]* a[j] / gcd(a[i], a[j]) == c) {
+                    ans = max(ans, a[i] * a[j]);
+                }
+            }
+        }
+        if(ans == 0) printf("-1\n");
+        else printf("%lld\n", ans);
+    }
+    return 0;
+}
