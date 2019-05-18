@@ -1,0 +1,76 @@
+https://codeforces.com/contest/1166/problem/B
+给一个n，要求构造一个矩阵，其每行每列都要包含5个元音字母，再输出这个序列，一行一行输出即可
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e6 + 10;
+const double pi = acos(-1.0);
+typedef long long ll;
+int n, c, t;
+char s[10] = {'a', 'e', 'i', 'o', 'u'};
+int vis[30];
+
+int main() {
+    cin >> n;
+    int r = 0, c = 0;
+    for(int i = 5; i * i <= n; ++i) {
+        if(n % i == 0) {
+            if(i >= 5 || n / i >= 5) {
+                r = i;
+                c = n / i;
+                break;
+            }
+        }
+    }
+    if(!r && !c) {
+        cout << "-1" << endl;
+        return 0;
+    }
+    else {
+        int p = 0;
+        for(int i = 0; i < r; ++i) {
+            for(int j = 0; j < c; ++j) {
+                cout << s[(p + j) % 5];
+            }
+            p++;
+        }
+    }
+    cout << endl;
+    return 0;
+}
+
+
+
+https://codeforces.com/contest/1166/problem/C
+给一个数组，要求一对数x, y，使得|x-y|,|x+y|的范围比|x|, |y|的范围大，求这样的数有几对。
+因为绝对值， 所以数的正负无关，可以都变为正数，可以令x<y，这样枚举y使，显然x>=y/2，直接查找即可
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const double pi = acos(-1.0);
+typedef long long ll;
+int n, v;
+char s[10] = {'a', 'e', 'i', 'o', 'u'};
+int a[2 * MAXN];
+
+int main() {
+    cin >> n;
+    for(int i = 1; i <= n; ++i) {
+        cin >> v;
+        a[i] = abs(v);
+    }
+    sort(a + 1, a + n + 1);
+    int pos = 1;
+    ll ans = 0;
+    for(int i = 1; i <= n; ++i) {
+        while(pos < i && 2 * a[pos] < a[i]) {
+            pos++;
+        }
+        ans += (i - pos);
+    }
+    cout << ans << endl;
+    return 0;
+}
