@@ -1,1 +1,67 @@
+https://codeforces.com/contest/1174/problem/C
+构造题。
+给一个n,构造一个n-1的数组，要求互质的两个下标i, j，a[i] != a[j],并且使最大值尽可能小。
+可以设一个初始值t=0,当数组中的元素还未被赋值时，就把t赋给数组中的那个元素，并且t++,并且把它的下标的倍数的元素的值也赋为t,这样既控制了最大值最小，
+也保持了互质下标i,j,a[i]!=a[j].
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int INF = 0x3f3f3f3f;
+const int mod = 998244353;
+typedef long long ll;
+int n;
+int a[MAXN];
+
+int main() {
+    cin >> n;
+    int tot = 0;
+    for(int i = 2; i <= n; ++i) {
+        if(!a[i]) {
+            a[i] = ++tot;
+            for(int j = https://codeforces.com/contest/1174/problem/D; j <= n; j += i) a[j] = a[i];
+        }
+        cout << a[i] << " ";
+    }
+    cout << endl;
+    return 0;
+}
+
+
+
+https://codeforces.com/contest/1174/problem/D
+构造题
+给定两个整数n和x，构造一个数组a，使得任意子段异或和不为0和x，同时数组a的长度应该最大化，对于a数组的元素(1 <= a[i] <= 2^n)
+基于这样一个事实或者是异或前缀和的特性，设a是原数组，p是a的前缀异或和，所以a[i]=p[i]^p[i-1];
+在[1,2^n)之间开始枚举出异或和不为0和x的前缀数组，然后把前缀数组两两异或值输出即可得到任意子段异或和不为0和x的数组
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 2010; //
+const int MAXM = 1e6 + 10;
+const int INF = 0x3f3f3f3f;
+const int mod = 998244353;
+typedef long long ll;
+int n, x;
+bool ex[(1 << 18)];
+
+int main() {
+    scanf("%d%d", &n, &x);
+    ex[0] = 1;
+    vector<int> v({0});
+    for (int i = 1; i < (1 << n); i++)
+    {
+        if (ex[i^x])
+            continue;
+        v.push_back(i);
+        ex[i]=1;
+    }
+    printf("%d\n", v.size() - 1);
+    for (int i = 1; i < v.size(); i++)
+        printf("%d ",(v[i]^v[i-1]));
+    printf("\n");
+    return 0;
+}
 
