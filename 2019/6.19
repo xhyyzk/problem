@@ -1,0 +1,33 @@
+Anti-Nim
+和经典Nim博弈一样，只是先取完的输。
+结论：
+一个状态为必胜态当且仅当：
+      (1)所有堆的石子个数为1，且异或和为0；
+      (2)至少有一堆石子个数大于1， 且异或和不等于0；
+bzoj 1022
+#include<bits/stdc++.h>
+using namespace std;
+const int MAXN = 5e5 + 10;
+typedef long long ll;
+int t, n, v;
+
+int main() {
+    cin >> t;
+    while(t--) {
+        cin >> n;
+        int sum = 0, flag = 0;
+        for(int i = 1; i <= n; ++i) {
+            cin >> v;
+            sum ^= v;
+            if(v > 1) flag = 1;
+        }
+        if(!flag) {
+            if(sum == 0) cout << "John" << endl;
+            else cout << "Brother" << endl;
+        }
+        else {
+            if(sum > 0) cout << "John" << endl;
+            else cout << "Brother" << endl;
+        }
+    }
+}
