@@ -34,3 +34,89 @@ int main() {
     cout << ans << endl;
     return 0;
 }
+
+
+2748
+https://www.lydsy.com/JudgeOnline/problem.php?id=2748
+    设计状态为dp[i][j]为第i次可以到达j的音量。那么dp[i][j]就由dp[i-1][j+c[i]]或dp[i-1]j-c[i]]得到，再判断一下是否小于0或超过上限即可。最后找
+dp[n][j]的最大值即可。
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int INF = 0x3f3f3f3f;
+const int mod = 2007;
+typedef long long ll;
+int n, bl, ml;
+int a[60], dp[60][1010];
+
+int main() {
+    cin >> n >> bl >> ml;
+    for(int i = 1; i <= n; ++i) cin >> a[i];
+    dp[0][bl] = 1;
+    for(int i = 1; i <= n; ++i) {
+        for(int j = 0; j <= ml; ++j) {
+            if(j + a[i] <= ml && dp[i - 1][j + a[i]]) dp[i][j] = 1;
+            if(j - a[i] >= 0 && dp[i - 1][j - a[i]]) dp[i][j] = 1;
+        }
+    }
+    int ans = -1;
+    for(int j = ml; j >= 0; --j) {
+        if(dp[n][j]) {
+            ans = j;
+            break;
+        }
+    }
+    if(ans == -1) cout << -1 << endl;
+    else cout << ans << endl;
+    return 0;
+}
+
+
+baoj 1029
+https://www.lydsy.com/JudgeOnline/problem.php?id=1029
+有n个建筑需要修建，给出每个建筑修筑的时长和期限，求最多可以修筑多少建筑。
+贪心，用优先队列维护修筑时长
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int INF = 0x3f3f3f3f;
+const int mod = 2007;
+typedef long long ll;
+int n, t1, t2;
+struct Node {
+    int t1, t2;
+    bool operator < (const Node t) const {
+        return t2 < t.t2;
+    }
+}a[150010];
+
+priority_queue<int>q;
+
+int main() {
+    cin >> n;
+    for(int i = 1; i <= n; ++i) 
+        cin >> a[i].t1 >> a[i].t2;
+    sort(a + 1, a + n + 1);
+    int cur = 0, cnt = 0;
+    for(int i = 1; i <= n; ++i) {
+        if(a[i].t1 + cur <= a[i].t2) {
+            cnt++;
+            q.push(a[i].t1);
+            cur += a[i].t1;
+        }
+        else {
+            if(q.empty()) continue;
+            int val = q.top();
+            if(val < a[i].t1) continue;
+            cur -= val - a[i].t1;
+            q.pop();
+            q.push(a[i].t1);
+        }
+    }
+    cout << cnt << endl;
+    return 0;
+}
