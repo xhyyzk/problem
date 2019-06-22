@@ -1,0 +1,50 @@
+https://ac.nowcoder.com/acm/contest/923/C
+根据差分数组和前缀和数组的关系，差分数组的前缀和就是原数组。
+我们知道区间加常数c可以先做差分，此时操作变为单点修改，然后使用前缀和还原。
+区间加一次函数bx+c呢，则可以做二阶差分操作（先差分一次，再对差分数组做一次差分）这时区间加一次函数bx+c就变为了单点修改，然后做二阶前缀和（前缀和的前缀和）还原，然后这个题就做完了。
+区间加二次函数ax2+bx+c 以此类推可以做三阶差分，也就是做差分，然后再差分，再差分。最后做三次前缀和还原。
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int INF = 0x3f3f3f3f;
+const int mod = 2007;
+typedef long long ll;
+int t, n, m, op, pos;
+ll p1[MAXN], p2[MAXN], p3[MAXN];
+
+void pre_sum(ll a[]) {
+    for(int i = 1; i <= n; ++i) 
+        a[i] = (a[i - 1] + a[i]) % mod;
+}
+
+int main() {
+    scanf("%d", &t);
+    while(t--) {
+        memset(p1, 0, sizeof(p1));
+        memset(p2, 0, sizeof(p2));
+        memset(p3, 0, sizeof(p3));
+        scanf("%d%d", &n, &m);
+        while(m--) {
+            cin >> op >> pos;
+            if(op == 1) p1[pos]++;
+            if(op == 2) p2[pos]++;
+            if(op == 3) {
+                p3[pos]++;
+                p3[pos + 1]++;
+            }
+        }
+        pre_sum(p1);
+        pre_sum(p2);
+        pre_sum(p2);
+        pre_sum(p3);
+        pre_sum(p3);
+        pre_sum(p3);
+        for(int i = 1; i <= n; ++i) {
+            if(i == n) printf("%lld\n", (p1[i] + p2[i] + p3[i]) % mod);
+            else printf("%lld ", (p1[i] + p2[i] + p3[i]) % mod);
+        }
+    }
+    return 0;
+}
