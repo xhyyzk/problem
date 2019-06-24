@@ -1,0 +1,136 @@
+https://codeforces.com/contest/1182/problem/E
+由给出的式子可以推出 fc(n)=fc(n-1)+fc(n-2)+fc(n-3)+2*n-6
+用矩阵加速即可
+
+代码：
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e5 + 10;
+const int INF = 0x3f3f3f3f;
+const int mod = 2007;
+typedef long long ll;
+int f[10], a[10][10];
+
+void mulself(int a[10][10]) {
+    int c[10][10];
+    memset(c, 0, sizeof(c));
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            for(int k = 0; k < 3; k++) {
+                c[i][j] = (c[i][j] + (long long)a[i][k] * a[k][j] % (mod - 1)) % (mod - 1);
+            }
+        }
+    }
+    memcpy(a, c, sizeof(c));
+}
+
+void mul(int f[10], int a[10][10]) {
+    int c[10];
+    memset(c, 0, sizeof(c));
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            c[i] = (c[i] + (long long)f[j] * a[j][i] % (mod - 1)) % (mod - 1);
+        }
+    }
+    memcpy(f, c, sizeof(c));
+}
+
+void mulself1(int a[10][10]) {
+    int c[10][10];
+    memset(c, 0, sizeof(c));
+    for(int i = 0; i < 5; i++) {
+        for(int j = 0; j < 5; j++) {
+            for(int k = 0; k < 5; k++) {
+                c[i][j] = (c[i][j] + (long long)a[i][k] * a[k][j] % (mod - 1)) % (mod - 1);
+            }
+        }
+    }
+    memcpy(a, c, sizeof(c));
+}
+
+void mul1(int f[10], int a[10][10]) {
+    int c[10];
+    memset(c, 0, sizeof(c));
+    for(int i = 0; i < 5; i++) {
+        for(int j = 0; j < 5; j++) {
+            c[i] = (c[i] + (long long)f[j] * a[j][i] % (mod - 1)) % (mod - 1);
+        }
+    }
+    memcpy(f, c, sizeof(c));
+}
+
+int qpow(int x, int n) {
+    int res = 1;
+    while(n) {
+        if(n & 1) res = 1LL * res * x % mod;
+        x = 1LL * x * x % mod;
+        n >>= 1;
+    }
+    return res;
+}
+
+LL n;
+int f1, f2, f3, c;
+
+int main(){
+    scanf("%lld%d%d%d%d", &n, &f1, &f2, &f3, &c);
+    if(n == 1) return printf("%d\n", f1) * 0;
+    if(n == 2) return printf("%d\n", f2) * 0;
+    if(n == 3) return printf("%d\n", f3) * 0;
+    n -= 3;
+    LL ans = 1;
+    f[0] = 1, f[1] = 0, f[2] = 0;
+    a[0][0] = 1, a[0][1] = 1, a[0][2] = 0;
+    a[1][0] = 1, a[1][1] = 0, a[1][2] = 1;
+    a[2][0] = 1, a[2][1] = 0, a[2][2] = 0;
+    LL x = n;
+    while(x) {
+        if(x & 1) mul(f, a);
+        mulself(a);
+        x >>= 1;
+    }
+    ans = ans * qpow(f3, f[0]) % mod;
+    f[0] = 0, f[1] = 1, f[2] = 0;
+    a[0][0] = 1, a[0][1] = 1, a[0][2] = 0;
+    a[1][0] = 1, a[1][1] = 0, a[1][2] = 1;
+    a[2][0] = 1, a[2][1] = 0, a[2][2] = 0;
+    x = n;
+    while(x) {
+        if(x & 1) mul(f, a);
+        mulself(a);
+        x >>= 1;
+    }
+    ans = ans * qpow(f2, f[0]) % mod;
+    f[0] = 0, f[1] = 0, f[2] = 1;
+    a[0][0] = 1, a[0][1] = 1, a[0][2] = 0;
+    a[1][0] = 1, a[1][1] = 0, a[1][2] = 1;
+    a[2][0] = 1, a[2][1] = 0, a[2][2] = 0;
+    x = n;
+    while(x) {
+        if(x & 1) mul(f, a);
+        mulself(a);
+        x >>= 1;
+    }
+    ans = ans * qpow(f1, f[0]) % mod;
+    if(n == 1) f[0] = 2;
+    if(n == 2) f[0] = 6;
+    if(n == 3) f[0] = 14;
+    if(n > 3) {
+        n -= 3;
+        f[0] = 14, f[1] = 6, f[2] = 2, f[3] = 3, f[4] = 1;
+        memset(a, 0, sizeof(a));
+        a[0][0] = a[0][1] = 1;
+        a[1][0] = a[1][2] = 1;
+        a[2][0] = 1;
+        a[3][0] = 2, a[3][3] = 1;
+        a[4][0] = 2, a[4][3] = a[4][4] = 1;
+        while(n) {
+            if(n & 1) mul1(f, a);
+            mulself1(a);
+            n >>= 1;
+        }
+    }
+    ans = ans * qpow(c, f[0]) % mod;
+    printf("%lld\n", ans);
+    return 0;
+}
